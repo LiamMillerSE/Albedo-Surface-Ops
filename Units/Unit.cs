@@ -43,6 +43,11 @@ namespace Albedo_Surface_Ops.Units
                     throw new Exception("No faction set.");
             }
         }
+
+        internal Faction GetFaction()
+        {
+            return faction;
+        }
     }
     enum Faction
     {
