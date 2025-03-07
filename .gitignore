@@ -1,0 +1,11 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/obj/Debug/net7.0/Albedo-Surface-Ops.pdb
+/obj/Debug/net7.0/Albedo-Surface-Ops.dll
+/bin/Debug/net7.0/Albedo-Surface-Ops.pdb
+/bin/Debug/net7.0/Albedo-Surface-Ops.dll
+*.vsidx
+/.vs/Albedo-Surface-Ops/FileContentIndex/7ecd1c1c-da4c-46e6-8b5d-6f8a248b768d.vsidx
+/.vs/Albedo-Surface-Ops/FileContentIndex/320ea54b-2ff5-427f-bf96-6b140da9cd81.vsidx
