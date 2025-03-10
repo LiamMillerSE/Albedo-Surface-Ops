@@ -49,5 +49,10 @@ namespace Albedo_Surface_Ops.TerrainTiles
         {
             return terrainInfo;
         }
+
+        internal double GetTravelWeight()
+        {
+            return travelWeight;
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace Albedo_Surface_Ops.TerrainTiles
         {
             this.symbol = "..";
             this.terrainInfo = "This is open air. Units (and bullets) will move freely through it";
-            this.travelWeight = 0;
+            this.travelWeight = 0.1;
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using Albedo_Surface_Ops.TerrainTiles;
+﻿using Albedo_Surface_Ops.Commands;
+using Albedo_Surface_Ops.TerrainTiles;
 using Albedo_Surface_Ops.Units;
-using System.ComponentModel.Design;
+using System.Drawing;
 
 #region Instantiation
 //Game Bounds
@@ -132,15 +133,159 @@ while (true)
         //Make sure unit exists at selection and is friendly
         if (u != null && u.GetFaction() == Faction.EDF)
         {
-            //make sure destination isn't populated
-            if (units[newX, newY] == null) 
+            PathToNode(u, selectionx, selectiony, newX, newY);
+        }
+    }
+    else if (orders[0] =="commands")
+    {
+        //longass message goes here :P
+        #region commands_string
+        infoString = "COMMANDS LIST:\n\n" +
+
+                    "info\n\t" +
+                    "Provides information about the currently selected tile (no args)\n\n" +
+
+                    "move [x] [y]\n\t" +
+                    "Moves the currently selected unit to the new coordinates specified\n\t" +
+                    "Example: move 12 C\n\n" +
+
+                    "overview\n\t" +
+                    "Changes the view mode to default overview mode (no arguments)\n\n" +
+
+                    "select [x] [y]\n\t" +
+                    "Moves the cursor to the coordinate entered\n\t" +
+                    "Example: select 14 N\n\n" +
+
+                    "weight\n\t" +
+                    "Changes the view mode to show terrain weight (no arguments)";
+
+        #endregion 
+    }
+    //update every unit
+    foreach(Unit u in units)
+    {
+        u?.Update();
+    }
+}
+
+bool PathToNode(Unit unit, int startx, int starty, int destX, int destY) 
+{
+    int curx = startx;
+    int cury = starty;
+    //bool[][] visited = Enumerable.Repeat(Enumerable.Repeat(false, GAME_HEIGHT).ToArray(), GAME_WIDTH).ToArray();
+    List<Point> unvisited = new List<Point>();
+    double[,] weights = new double[GAME_WIDTH, GAME_HEIGHT];
+    for (int x = 0; x < GAME_WIDTH; x++)
+    {
+        for (int y = 0; y < GAME_HEIGHT; y++)
+        {
+            unvisited.Add(new Point(x, y));
+            weights[x, y] = double.MaxValue;
+        }
+    }
+    bool keepLooking = true;
+        weights[curx, cury] = 0;
+    do
+    {
+        unvisited.Remove(new Point(curx, cury));
+        //calculate ornithagonal movement only
+        if (curx + 1 < GAME_WIDTH)
+        {
+            ComparePathValues(ref weights, unvisited, curx, cury, curx + 1, cury);
+        }
+        if (curx - 1 >= 0)
+        {
+            ComparePathValues(ref weights, unvisited, curx, cury, curx - 1, cury);
+        }
+        if (cury + 1 < GAME_HEIGHT)
+        {
+            ComparePathValues(ref weights, unvisited, curx, cury, curx, cury + 1);
+        }
+        if (cury - 1 >= 0)
+        {
+            ComparePathValues(ref weights, unvisited, curx, cury, curx, cury - 1);
+        }
+        Point nextPoint = new Point(-1, -1);
+        double lowestVal = double.MaxValue;
+        //select next point
+        foreach(Point p in unvisited)
+        {
+            if (weights[p.X, p.Y] < lowestVal)
             {
-                units[newX, newY] = u;
-                units[selectionx, selectiony] = null;
+                nextPoint = p;
+                lowestVal = weights[p.X, p.Y];
             }
+        }
+        curx = nextPoint.X;
+        cury = nextPoint.Y;
+        if(nextPoint == new Point(-1, -1))
+        {
+            keepLooking = false;
+        }
+    } while (keepLooking);
+
+    //weight graph populated, now we track in reverse back to the start
+    Stack<MoveCommand> steps = new Stack<MoveCommand>();
+    curx = destX;
+    cury = destY;
+    while(!(curx == startx && cury == starty))
+    {
+        Point nextPoint = new Point();
+        double minval = double.MaxValue;
+        Direction dir = Direction.none;
+        if (curx - 1 >= 0 && weights[curx - 1, cury] < minval)
+        {
+            minval = weights[curx - 1, cury];
+            dir = Direction.EAST;
+            nextPoint = new Point(curx - 1, cury);
+        }
+        if (curx + 1 < GAME_WIDTH && weights[curx + 1, cury] < minval)
+        {
+            minval = weights[curx + 1, cury];
+            dir = Direction.WEST;
+            nextPoint = new Point(curx + 1, cury);
+        }
+        if (cury - 1 >= 0 && weights[curx, cury - 1] < minval)
+        {
+            minval = weights[curx, cury - 1];
+            dir = Direction.SOUTH;
+            nextPoint = new Point(curx, cury - 1);
+        }
+        if (cury + 1 < GAME_HEIGHT && weights[curx, cury + 1] < minval)
+        {
+            minval = weights[curx, cury + 1];
+            dir = Direction.NORTH;
+            nextPoint = new Point(curx, cury + 1);
+        }
+        if (dir != Direction.none)
+        {
+            steps.Push(new MoveCommand(dir));
+        }
+        curx = nextPoint.X;
+        cury = nextPoint.Y;
+    }
+    //queue all the steps to the unit
+    while (steps.Count > 0)
+    {
+        unit.IssueCommand(steps.Pop());
+    }
+    //returns true if path was found succesfully and command was issued
+    return true;
+}
+
+void ComparePathValues(ref double[,] weights, List<Point> unvisited, int startx,  int starty, int x, int y)
+{
+    /*if (unvisited.Contains(new Point(x, y)))*/
+    {
+        double newWeight = weights[startx, starty] + terrian[x, y].GetTravelWeight();
+        if (weights[x, y] > newWeight)
+        {
+            weights[x, y] = newWeight;
         }
     }
 }
+
+
 
 #region color formatting
 void ResetConsoleColors()
