@@ -30,5 +30,9 @@ namespace Albedo_Surface_Ops.Commands
         {
             throw new NotImplementedException();
         }
+        public override string ToString()
+        {
+            return "Move " + direction.ToString() + " command";
+        }
     }
 }

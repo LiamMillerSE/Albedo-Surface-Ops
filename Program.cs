@@ -168,6 +168,8 @@ while (true)
     }
 }
 
+#region Pathfinding
+
 bool PathToNode(Unit unit, int startx, int starty, int destX, int destY) 
 {
     int curx = startx;
@@ -285,7 +287,7 @@ void ComparePathValues(ref double[,] weights, List<Point> unvisited, int startx,
     }
 }
 
-
+#endregion
 
 #region color formatting
 void ResetConsoleColors()
@@ -298,10 +300,11 @@ void SetCheckerboardColor(int n)
     Console.ForegroundColor = ConsoleColor.Black;
     Console.BackgroundColor = n % 2 == 0 ? ConsoleColor.DarkCyan : ConsoleColor.Blue;
 }
-#endregion
 
 enum ViewMode
 {
     OVERVIEW,
     TERRAIN_WEIGHT
 }
+
+#endregion
