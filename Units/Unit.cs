@@ -14,6 +14,15 @@ namespace Albedo_Surface_Ops.Units
         internal Faction faction;
         internal string symbol;
         internal Queue<IUnitCommand> commands = new Queue<IUnitCommand>();
+        bool isInCombat = false;
+        public int x;
+        public int y;
+
+        protected Unit(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
 
         internal void WriteToConsole()
         {
@@ -39,6 +48,14 @@ namespace Albedo_Surface_Ops.Units
                 commands.Clear();
             }
             commands.Enqueue(command);
+        }
+
+        public void Battle(Unit target)
+        {
+            isInCombat = true;
+            target.isInCombat = true;
+            //TODO: Implement
+            //Possibly queue a fight command that does not finish until the target dies/disengages, or the unit flees
         }
 
         public void Update()
@@ -71,6 +88,11 @@ namespace Albedo_Surface_Ops.Units
         internal Faction GetFaction()
         {
             return faction;
+        }
+
+        public bool CanMove()
+        {
+            return isInCombat;
         }
     }
     enum Faction

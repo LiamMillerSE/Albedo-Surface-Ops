@@ -17,13 +17,14 @@ namespace Albedo_Surface_Ops.Commands
     public class MoveCommand : IUnitCommand
     {
         Direction direction;
+        bool completed = false;
         public MoveCommand(Direction dir)
         {
             direction = dir;
         }
         public void Execute()
         {
-            throw new NotImplementedException();
+            //completed = 
         }
 
         public bool IsComplete()

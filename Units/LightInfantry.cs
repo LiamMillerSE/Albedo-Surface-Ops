@@ -9,7 +9,7 @@ namespace Albedo_Surface_Ops.Units
 {
     internal class LightInfantry : Unit
     {
-        public LightInfantry(Faction faction) 
+        public LightInfantry(Faction faction, int x, int y) : base(x,y) 
         {
             this.faction = faction;
             this.name = "Light Infantry";
