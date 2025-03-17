@@ -19,7 +19,7 @@ namespace Albedo_Surface_Ops
 
         //Terrain
         TerrainTile[,] terrian = new TerrainTile[GAME_WIDTH, GAME_HEIGHT];
-        List<Unit> units = new List<Unit>();
+        List<Squad> squads = new List<Squad>();
 
         //Info and misc variable declaration
         string infoString = "";
@@ -50,9 +50,9 @@ namespace Albedo_Surface_Ops
                 }
             }
             //Create a couple units
-            units.Add(new LightInfantry(Faction.ILR, 2, 2));
-            units.Add(new LightInfantry(Faction.ILR, 4, 2));
-            units.Add(new LightInfantry(Faction.EDF, 4, 14));
+            squads.Add(UnitFactory.Instance().CreateSquad(Faction.ILR, Service.Light_Infantry, 2, 2));
+            squads.Add(UnitFactory.Instance().CreateSquad(Faction.ILR, Service.Light_Infantry, 4, 2));
+            squads.Add(UnitFactory.Instance().CreateSquad(Faction.EDF, Service.Light_Infantry, 4, 14));
 
             #endregion
         }
@@ -83,7 +83,7 @@ namespace Albedo_Surface_Ops
                     switch (viewMode)
                     {
                         case ViewMode.OVERVIEW:
-                            Unit tileunit = units.FirstOrDefault(u => u.x == x && u.y == y);
+                            Squad tileunit = squads.FirstOrDefault(u => u.x == x && u.y == y);
                             if (tileunit != null)
                             {
                                 tileunit.WriteToConsole();
@@ -125,9 +125,9 @@ namespace Albedo_Surface_Ops
             }
             else if (orders[0] == "info")
             {
-                Unit tileunit = units.FirstOrDefault(u => u.x == selectionx && u.y == selectiony);
+                Squad tilesquad = squads.FirstOrDefault(u => u.x == selectionx && u.y == selectiony);
                 infoString = "TERRAIN INFO: " + terrian[selectionx, selectiony].ToString() +
-                    "\nUNIT INFO: " + tileunit?.ToString();
+                    "\nUNIT INFO: " + tilesquad?.GetSquadInfo();
             }
             else if (orders[0] == "weight")
             {
@@ -139,7 +139,7 @@ namespace Albedo_Surface_Ops
             }
             else if (orders[0] == "move")
             {
-                Unit tileunit = units.FirstOrDefault(u => u.x == selectionx && u.y == selectiony);
+                Squad tileunit = squads.FirstOrDefault(u => u.x == selectionx && u.y == selectiony);
                 int newX = int.Parse(orders[1]);
                 int newY = orders[2][0] - 'a';
                 //Make sure unit exists at selection and is friendly
@@ -179,19 +179,19 @@ namespace Albedo_Surface_Ops
         public void Update()
         {
             //update every unit
-            foreach (Unit u in units)
+            foreach (Squad u in squads)
             {
                 u?.Update();
             }
         }
 
         //Returns true if the move succeeds
-        public bool MoveUnit(Unit unit, Direction dir)
+        public bool MoveSquad(Squad squad, Direction dir)
         {
-            if (!unit.CanMove())
+            if (!squad.CanMove())
                 return false;
-            int newx = unit.x;
-            int newy = unit.y;
+            int newx = squad.x;
+            int newy = squad.y;
             switch (dir)
             {
                 case Direction.NORTH:
@@ -216,13 +216,13 @@ namespace Albedo_Surface_Ops
                     break;
             }
             //Check if space is occupied
-            Unit tileEnemy = units.FirstOrDefault(u => u.x == unit.x && u.y == unit.y - 1);
+            Squad tileEnemy = squads.FirstOrDefault(u => u.x == squad.x && u.y == squad.y - 1);
             if (tileEnemy != null)
             {
                 //This only works (correctly) if we're moving an EDF unit
                 if (tileEnemy.faction == Faction.ILR)
                 {
-                    unit.Battle(tileEnemy);
+                    squad.Battle(tileEnemy);
                 }
             }
             else
@@ -231,8 +231,8 @@ namespace Albedo_Surface_Ops
                 if (rand.NextDouble() >= terrian[newx, newy].travelWeight)
                 {
                     //move successful
-                    unit.x = newx;
-                    unit.y = newy;
+                    squad.x = newx;
+                    squad.y = newy;
                     return true;
                 }
             }
@@ -242,11 +242,10 @@ namespace Albedo_Surface_Ops
 
         #region Pathfinding
 
-        bool PathToNode(Unit unit, int startx, int starty, int destX, int destY)
+        bool PathToNode(Squad unit, int startx, int starty, int destX, int destY)
         {
             int curx = startx;
             int cury = starty;
-            //bool[][] visited = Enumerable.Repeat(Enumerable.Repeat(false, GAME_HEIGHT).ToArray(), GAME_WIDTH).ToArray();
             List<Point> unvisited = new List<Point>();
             double[,] weights = new double[GAME_WIDTH, GAME_HEIGHT];
             for (int x = 0; x < GAME_WIDTH; x++)

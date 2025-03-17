@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Albedo_Surface_Ops.Units
 {
-    internal class LightInfantry : Unit
+    internal class LightInfantrySquad : Squad
     {
-        public LightInfantry(Faction faction, int x, int y) : base(x,y) 
+        public LightInfantrySquad(Faction faction, int x, int y) : base(x,y) 
         {
             this.faction = faction;
-            this.name = "Light Infantry";
+            this.name = "Light Infantry Squad";
             this.symbol = "LI";
         }
     }

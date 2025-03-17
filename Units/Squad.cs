@@ -1,14 +1,8 @@
 ﻿using Albedo_Surface_Ops.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace Albedo_Surface_Ops.Units
 {
-    public abstract class Unit
+    public abstract class Squad
     {
         internal string name;
         internal Faction faction;
@@ -17,11 +11,21 @@ namespace Albedo_Surface_Ops.Units
         bool isInCombat = false;
         public int x;
         public int y;
+        List<Soldier> _soldiers = new List<Soldier>();
 
-        protected Unit(int x, int y)
+        protected Squad(int x, int y)
         {
             this.x = x;
             this.y = y;
+        }
+
+        public void AddSoldier(Soldier s)
+        {
+            _soldiers.Add(s);
+        }
+        public void AddSoldiers(List<Soldier> s)
+        {
+            _soldiers.AddRange(s);
         }
 
         internal void WriteToConsole()
@@ -50,7 +54,7 @@ namespace Albedo_Surface_Ops.Units
             commands.Enqueue(command);
         }
 
-        public void Battle(Unit target)
+        public void Battle(Squad target)
         {
             isInCombat = true;
             target.isInCombat = true;
@@ -85,6 +89,16 @@ namespace Albedo_Surface_Ops.Units
             }
         }
 
+        public string GetSquadInfo()
+        {
+            string info = this.ToString() + ":\n";
+            foreach (Soldier s in _soldiers)
+            {
+                info += s.ToString() + "\n";
+            }
+            return info;
+        }
+
         internal Faction GetFaction()
         {
             return faction;
@@ -95,7 +109,7 @@ namespace Albedo_Surface_Ops.Units
             return !isInCombat;
         }
     }
-    enum Faction
+    public enum Faction
     {
         EDF,
         ILR,

@@ -19,15 +19,15 @@ namespace Albedo_Surface_Ops.Commands
     {
         Direction direction;
         bool completed = false;
-        Unit unit;
-        public MoveCommand(Unit u, Direction dir)
+        Squad unit;
+        public MoveCommand(Squad u, Direction dir)
         {
             direction = dir;
             unit = u;
         }
         public void Execute()
         {
-            completed = GameMaster.Instance().MoveUnit(this.unit, direction);
+            completed = GameMaster.Instance().MoveSquad(this.unit, direction);
         }
 
         public bool IsComplete()
