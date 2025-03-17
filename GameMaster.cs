@@ -185,7 +185,8 @@ namespace Albedo_Surface_Ops
             }
         }
 
-        bool MoveUnit(Unit unit, Direction dir)
+        //Returns true if the move succeeds
+        public bool MoveUnit(Unit unit, Direction dir)
         {
             if (!unit.CanMove())
                 return false;
@@ -332,7 +333,7 @@ namespace Albedo_Surface_Ops
                 }
                 if (dir != Direction.none)
                 {
-                    steps.Push(new MoveCommand(dir));
+                    steps.Push(new MoveCommand(unit, dir));
                 }
                 curx = nextPoint.X;
                 cury = nextPoint.Y;

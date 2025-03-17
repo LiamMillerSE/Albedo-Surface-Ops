@@ -92,7 +92,7 @@ namespace Albedo_Surface_Ops.Units
 
         public bool CanMove()
         {
-            return isInCombat;
+            return !isInCombat;
         }
     }
     enum Faction
