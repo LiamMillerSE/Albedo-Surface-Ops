@@ -229,6 +229,7 @@ namespace Albedo_Surface_Ops
                 if (tileEnemy.faction == Faction.ILR)
                 {
                     FightController newfight = new FightController(new List<Squad> { squad, tileEnemy });
+                    allFights.Add(newfight);
                 }
             }
             else

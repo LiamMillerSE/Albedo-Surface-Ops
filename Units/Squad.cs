@@ -65,6 +65,13 @@ namespace Albedo_Surface_Ops.Units
                 }
             }
         }
+
+        //Set Squad as fighting
+        public void Engage()
+        {
+            this.isInCombat = true;
+        }
+
         public bool CanFight()
         {
             return _soldiers.Any(s => s.CanFight());

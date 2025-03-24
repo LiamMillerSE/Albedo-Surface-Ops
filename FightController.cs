@@ -5,25 +5,21 @@ namespace Albedo_Surface_Ops
 {
     class FightController
     {
-        public FightCommand sharedCommand;
         List<Squad> squads;
         static Random rand = new Random();
 
         public FightController(List<Squad> invlolvedSquads)
         {
-            //TODO: flesh the command out
-            sharedCommand = new FightCommand();
             squads = invlolvedSquads;
             foreach (Squad squad in squads)
             {
                 //IGNORE ALL ORDERS AND FIGHT DAMN IT!
-                squad.IssueCommand(sharedCommand, true);
+                squad.Engage();
             }
         }
 
         public void AddCombatant(Squad s)
         {
-            s.IssueCommand(sharedCommand, true);
             squads.Add(s);
         }
 
