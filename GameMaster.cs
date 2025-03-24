@@ -18,12 +18,13 @@ namespace Albedo_Surface_Ops
         bool showCursor = true;
 
         //Terrain
-        TerrainTile[,] terrian = new TerrainTile[GAME_WIDTH, GAME_HEIGHT];
-        List<Squad> squads = new List<Squad>();
+        static TerrainTile[,] terrian = new TerrainTile[GAME_WIDTH, GAME_HEIGHT];
+        static List<Squad> squads = new List<Squad>();
+        static List<FightController> allFights = new List<FightController>();
 
         //Info and misc variable declaration
         string infoString = "";
-        Random rand = new Random();
+        static Random rand = new Random();
         ViewMode viewMode = ViewMode.OVERVIEW;
 
         public GameMaster() 
@@ -178,6 +179,11 @@ namespace Albedo_Surface_Ops
 
         public void Update()
         {
+            //update every fight
+            foreach (FightController fight in allFights)
+            {
+                fight.Update();
+            }
             //update every unit
             foreach (Squad u in squads)
             {
@@ -222,7 +228,7 @@ namespace Albedo_Surface_Ops
                 //This only works (correctly) if we're moving an EDF unit
                 if (tileEnemy.faction == Faction.ILR)
                 {
-                    squad.Battle(tileEnemy);
+                    FightController newfight = new FightController(new List<Squad> { squad, tileEnemy });
                 }
             }
             else

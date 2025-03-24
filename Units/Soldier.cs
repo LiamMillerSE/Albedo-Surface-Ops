@@ -5,20 +5,26 @@ namespace Albedo_Surface_Ops.Units
 {
     public class Soldier
     {
+        static readonly Random random = new Random();
         Species _species;
         Service _service;
         Status _status;
         Faction _faction;
+        string MOS;
+
         int _deflection = 11;
         int _woundThreashold;
         string _pronoun;
+        int _moraleMax;
+        int _moraleCurrent;
 
         //Generate a random soldier
-        public Soldier(Service service, Faction faction)
+        public Soldier(Service service, Faction faction, string mos = "soldier")
         {
             _service = service;
             _status = new Status();
             _faction = faction;
+            MOS = mos;
 
             if (faction == Faction.EDF)
             {
@@ -43,9 +49,113 @@ namespace Albedo_Surface_Ops.Units
                 _species = Species.Rabbit;
             }
             _woundThreashold = GetThresholdFromSpecies(_species) + 5;
+            _moraleMax = GetMoraleFromSpecies(_species);
+            _moraleCurrent = _moraleMax;
         }
 
+        public void AttackTarget(Soldier target)
+        {
+            if (CanFight())
+            {
+                //check if attack die beats defence dice
+                //TODO: make it make sense
+                if (random.Next(10) > Math.Max(random.Next(8), random.Next(6)))
+                {
+                    int penCount = target.GetPenetrationCount();
+                    if (penCount > 0)
+                    {
+                        target.TakeDamage(10 + (10 * penCount));
+                    }
+                }
+            }
+        }
 
+        //returns true if the unit is knocked out
+        public bool TakeDamage(int damage)
+        {
+            //WHAT??? no injury calc??
+            if (damage >= _woundThreashold + 40)
+            {
+                _status = (Status)Math.Max((int)Status.DEVASTATED, (int)_status);
+            }
+            else if (damage >= _woundThreashold + 20)
+            {
+                _status = (Status)Math.Max((int)Status.INCAPACITATED, (int)_status);
+            }
+            else if (damage >= _woundThreashold + 10)
+            {
+                _moraleCurrent -= 3;
+                _status = (Status)Math.Max((int)Status.CRIPPLED, (int)_status);
+            }
+            else if (damage >= _woundThreashold)
+            {
+                _moraleCurrent -= 2;
+                _status = (Status)Math.Max((int)Status.WOUNDED, (int)_status);
+            }
+            else
+            {
+                _moraleCurrent -= 1;
+            }
+            return !CanFight();
+        }
+
+        public int GetPenetrationCount()
+        {
+            int diceCount = 0;
+            int hits = 0;
+            switch (_status)
+            {
+                case Status.CRIPPLED:
+                    diceCount = 3;
+                    break;
+                case Status.WOUNDED:
+                    diceCount = 2;
+                    break;
+                case Status.HEALTHY:
+                    diceCount = 1;
+                    break;
+                default:
+                    //STOP IT THEY'RE ALREADY DEAAADDD...
+                    break;
+            }
+            for (int i = 0; i < diceCount; i++)
+            {
+                if (random.Next(20) + 1 >= _deflection)
+                {
+                    hits++;
+                }
+            }
+            _moraleCurrent--;
+            //MAYBE check for panic???
+            return hits;
+        }
+
+        int GetMoraleFromSpecies(Species s)
+        {
+            switch (s)
+            {
+                case Species.Bird: return 8;
+                case Species.Canine: return 9;
+                case Species.Small_Cat: return 8;
+                case Species.Great_Cat: return 8;
+                case Species.Rabbit: return 8;
+                case Species.Marsupial: return 8;
+                case Species.Macropod: return 8;
+                case Species.Echidna: return 9;
+                case Species.Otter: return 8;
+                case Species.Platypus: return 8;
+                case Species.Skunk: return 8;
+                case Species.Weasel: return 8;
+                case Species.Mouse: return 8;
+                case Species.Raccoon: return 8;
+                case Species.Rat: return 8;
+                case Species.Squirrel: return 8;
+                case Species.Ungulate: return 8;
+                case Species.Bear: return 8;
+                case Species.Fox: return 8;
+                default: return 0;
+            }
+        }
         int GetThresholdFromSpecies(Species s)
         {
             switch (s)
@@ -74,8 +184,17 @@ namespace Albedo_Surface_Ops.Units
         }
         public override string ToString()
         {
-            return _pronoun + " an " + _faction.ToString() + " " + _service.ToString() + " soldier.\n\t" + 
+            return _pronoun + " an " + _faction.ToString() + " " + _service.ToString().Replace('_', ' ') + " " + MOS + ".\n\t" + 
                 "This " + _species + " is " + _status.ToString() + ".";
+        }
+
+        internal bool CanFight()
+        {
+            return _moraleCurrent > 0 && _status < Status.INCAPACITATED;
+        }
+        internal Faction GetFaction()
+        {
+            return _faction;
         }
     }
     public enum Species
@@ -102,11 +221,11 @@ namespace Albedo_Surface_Ops.Units
     }
     public enum Status
     {
-        HEALTHY,
-        WOUNDED,
-        CRIPPLED,
-        INCAPACITATED,
-        DEVASTATED,
-        DEAD
+        HEALTHY = 0,
+        WOUNDED = 1,
+        CRIPPLED = 2,
+        INCAPACITATED = 3,
+        DEVASTATED = 4,
+        DEAD = 5
     }
 }

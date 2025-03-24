@@ -54,14 +54,6 @@ namespace Albedo_Surface_Ops.Units
             commands.Enqueue(command);
         }
 
-        public void Battle(Squad target)
-        {
-            isInCombat = true;
-            target.isInCombat = true;
-            //TODO: Implement
-            //Possibly queue a fight command that does not finish until the target dies/disengages, or the unit flees
-        }
-
         public void Update()
         {
             if (commands.Count > 0)
@@ -73,6 +65,11 @@ namespace Albedo_Surface_Ops.Units
                 }
             }
         }
+        public bool CanFight()
+        {
+            return _soldiers.Any(s => s.CanFight());
+        }
+        public List<Soldier> GetSoldiers() { return _soldiers; }
 
         public override string ToString()
         {
