@@ -217,7 +217,7 @@ namespace Albedo_Surface_Ops.Units
         }
         internal bool IsPanicked()
         {
-            return _moraleCurrent > 0;
+            return _moraleCurrent <= 0;
         }
         internal bool IsConcious()
         {

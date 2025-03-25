@@ -16,6 +16,8 @@ namespace Albedo_Surface_Ops
         int selectionx = 0;
         int selectiony = 0;
         bool showCursor = true;
+        bool lockCursor = true;
+        Squad selectedSquad = null;
 
         //Terrain
         static TerrainTile[,] terrian = new TerrainTile[GAME_WIDTH, GAME_HEIGHT];
@@ -48,6 +50,11 @@ namespace Albedo_Surface_Ops
                     {
                         terrian[x, y] = new Empty();
                     }
+                    //Eh let's mess around with a highway
+                    if(x == 5 || x == 6)
+                    {
+                        terrian[x, y] = new Road();
+                    }
                 }
             }
             //Create a couple units
@@ -59,6 +66,12 @@ namespace Albedo_Surface_Ops
         }
         public void PrintScene()
         {
+            //Check for locked cursor movements
+            if(lockCursor && selectedSquad != null)
+            {
+                selectionx = selectedSquad.x; 
+                selectiony = selectedSquad.y;
+            }
             //Print out scene
             //first, the coords at the top (with a bar)
             Console.Write(" |");
@@ -123,6 +136,10 @@ namespace Albedo_Surface_Ops
                 //TODO: add protection
                 selectionx = int.Parse(orders[1]);
                 selectiony = orders[2][0] - 'a';
+                if(lockCursor)
+                {
+                    selectedSquad = squads.FirstOrDefault(u => u.x == selectionx && u.y == selectiony);
+                }
             }
             else if (orders[0] == "info")
             {
