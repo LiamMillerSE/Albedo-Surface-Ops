@@ -180,9 +180,13 @@ namespace Albedo_Surface_Ops
         public void Update()
         {
             //update every fight
-            foreach (FightController fight in allFights)
+            for (int i = 0; i < allFights.Count(); i++)
             {
-                fight.Update();
+                if (allFights[i].Update())
+                {
+                    allFights.RemoveAt(i);
+                    i--;
+                }
             }
             //update every unit
             foreach (Squad u in squads)
@@ -222,7 +226,7 @@ namespace Albedo_Surface_Ops
                     break;
             }
             //Check if space is occupied
-            Squad tileEnemy = squads.FirstOrDefault(u => u.x == squad.x && u.y == squad.y - 1);
+            Squad tileEnemy = squads.FirstOrDefault(u => u.x == newx && u.y == newy);
             if (tileEnemy != null)
             {
                 //This only works (correctly) if we're moving an EDF unit
@@ -246,6 +250,10 @@ namespace Albedo_Surface_Ops
             return false;
         }
 
+        internal void RemoveSquad(Squad squad)
+        {
+            squads.Remove(squad);
+        }
 
         #region Pathfinding
 

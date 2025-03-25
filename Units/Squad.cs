@@ -112,6 +112,19 @@ namespace Albedo_Surface_Ops.Units
         {
             return !isInCombat;
         }
+
+        internal void EndFight()
+        {
+            //Are we in fighting shape?
+            if(_soldiers.FirstOrDefault(u=>u.CanFight()) != null)
+            {
+                isInCombat = false;
+            }
+            else
+            {
+                GameMaster.Instance().RemoveSquad(this);
+            }
+        }
     }
     public enum Faction
     {

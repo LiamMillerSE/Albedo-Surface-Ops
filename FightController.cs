@@ -23,7 +23,8 @@ namespace Albedo_Surface_Ops
             squads.Add(s);
         }
 
-        public void Update()
+        //returns true if the fight has ended
+        public bool Update()
         {
             //Get all the soldiers
             List<Soldier> soldiers = new List<Soldier>();
@@ -66,7 +67,17 @@ namespace Albedo_Surface_Ops
                     //KILL THEM!!!
                     attacker.AttackTarget(defender);
                 }
+                else 
+                {
+                    //Fight is over
+                    foreach(Squad s in squads)
+                    {
+                        s.EndFight();
+                    }
+                    return true;
+                }
             }
+            return false;
         }
     }
 }
