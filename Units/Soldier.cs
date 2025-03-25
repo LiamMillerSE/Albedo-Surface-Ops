@@ -17,6 +17,7 @@ namespace Albedo_Surface_Ops.Units
         string _pronoun;
         int _moraleMax;
         int _moraleCurrent;
+        const int MORALE_BUFF = 7; //this is to make up for Awe reducing drive after morale is done
 
         //Generate a random soldier
         public Soldier(Service service, Faction faction, string mos = "soldier")
@@ -49,7 +50,7 @@ namespace Albedo_Surface_Ops.Units
                 _species = Species.Rabbit;
             }
             _woundThreashold = GetThresholdFromSpecies(_species) + 5;
-            _moraleMax = GetMoraleFromSpecies(_species);
+            _moraleMax = GetMoraleFromSpecies(_species) + MORALE_BUFF;
             _moraleCurrent = _moraleMax;
         }
 
@@ -64,9 +65,31 @@ namespace Albedo_Surface_Ops.Units
                     int penCount = target.GetPenetrationCount();
                     if (penCount > 0)
                     {
-                        target.TakeDamage(10 + (10 * penCount));
+                        MoraleBoost(1); //Yay, I landed a shot!
+                        if(target.TakeDamage(10 + (10 * penCount)))
+                        {
+                            MoraleBoost(5); //URRAAA the bastard's dead
+                        }
                     }
                 }
+            }
+        }
+
+        public void MoraleBoost(int moraleToAdd)
+        {
+            _moraleCurrent += moraleToAdd;
+            if(_moraleCurrent > _moraleMax)
+            {
+                _moraleCurrent = _moraleMax;
+            }
+        }
+
+        public void MoraleLoss(int moraleToRemove)
+        {
+            _moraleCurrent -= moraleToRemove;
+            if(_moraleCurrent < 0)
+            {
+                _moraleCurrent = 0;
             }
         }
 
@@ -84,17 +107,17 @@ namespace Albedo_Surface_Ops.Units
             }
             else if (damage >= _woundThreashold + 10)
             {
-                _moraleCurrent -= 3;
+                MoraleLoss(3);
                 _status = (Status)Math.Max((int)Status.CRIPPLED, (int)_status);
             }
             else if (damage >= _woundThreashold)
             {
-                _moraleCurrent -= 2;
+                MoraleLoss(2);
                 _status = (Status)Math.Max((int)Status.WOUNDED, (int)_status);
             }
             else
             {
-                _moraleCurrent -= 1;
+                MoraleLoss(1);
             }
             return !CanFight();
         }
@@ -185,12 +208,20 @@ namespace Albedo_Surface_Ops.Units
         public override string ToString()
         {
             return _pronoun + " an " + _faction.ToString() + " " + _service.ToString().Replace('_', ' ') + " " + MOS + ".\n\t" + 
-                "This " + _species + " is " + _status.ToString() + ".";
+                "This " + _species.ToString().Replace('_', ' ') + " is " + _status.ToString() + ".";
         }
 
         internal bool CanFight()
         {
-            return _moraleCurrent > 0 && _status < Status.INCAPACITATED;
+            return !IsPanicked() && IsConcious();
+        }
+        internal bool IsPanicked()
+        {
+            return _moraleCurrent > 0;
+        }
+        internal bool IsConcious()
+        {
+            return _status < Status.INCAPACITATED;
         }
         internal Faction GetFaction()
         {
